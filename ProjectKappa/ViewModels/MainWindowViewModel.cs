@@ -91,7 +91,7 @@ namespace ProjectKappa.ViewModels
             try
             {
                 CurrentConsoleOut = string.Empty;
-                ProgressDialogController controller = await _DialogCoordinator.ShowProgressAsync(this, $"Working on Step {StepCounter++} of {TotalSteps}...", "Work is beeing done in the background...");
+                ProgressDialogController controller = await _DialogCoordinator.ShowProgressAsync(this, $"Working on Step {StepCounter++} of {TotalSteps}...", "Work is being done in the background...");
                 controller.SetIndeterminate();
                 controller.Minimum = 0;
                 controller.Maximum = 1;
@@ -100,7 +100,7 @@ namespace ProjectKappa.ViewModels
                     CurrentlyWorking = true;
                     for(int i = 0; i < GamelandFolders.Count; i++)
                     {
-                        controller.SetMessage($"Work is beeing done in the background...{Environment.NewLine}Item {i} of {GamelandFolders.Count}");
+                        controller.SetMessage($"Work is being done in the background...{Environment.NewLine}Item {i} of {GamelandFolders.Count}");
                         controller.SetProgress((double)i / GamelandFolders.Count);
                         GamelandFolders[i].ExecuteNextStepCommand.Execute(null);
                     }
