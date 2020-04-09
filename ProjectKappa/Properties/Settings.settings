@@ -1,7 +1,18 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ProjectKappa.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="LAStoolsRoot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">unset</Value>
+    </Setting>
+    <Setting Name="LogLevel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TRACE</Value>
+    </Setting>
+    <Setting Name="LASFilesRoot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">unset</Value>
+    </Setting>
+    <Setting Name="QGISRoot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">unset</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>
