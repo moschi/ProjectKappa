@@ -48,11 +48,12 @@
                 <StackPanel Margin="15">
                     <TextBox Controls:TextBoxHelper.UseFloatingWatermark="True" Controls:TextBoxHelper.Watermark="LAStoolsRoot" Text="{Binding LAStoolsRoot}" Margin="3" />
                     <TextBox Controls:TextBoxHelper.UseFloatingWatermark="True" Controls:TextBoxHelper.Watermark="LASFilesRoot" Text="{Binding LASFilesRoot}" Margin="3" />
+                    <TextBox Controls:TextBoxHelper.UseFloatingWatermark="True" Controls:TextBoxHelper.Watermark="QGISRoot" Text="{Binding QGISRoot}" Margin="3" />
                     <ComboBox Controls:TextBoxHelper.UseFloatingWatermark="True" Controls:TextBoxHelper.Watermark="LogLevel" IsEditable="False" ItemsSource="{Binding LogLevels}" SelectedItem="{Binding Level}" Margin="3" />
                     <Button Content="Save" Command="{Binding SyncCommand}" Margin="3" />
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Log">
+            <TabItem Header="Log" Visibility="Hidden">
                 <ScrollViewer>
                     <ListBox ItemsSource="{Binding Log.Entries}" Margin="15" />
                 </ScrollViewer>

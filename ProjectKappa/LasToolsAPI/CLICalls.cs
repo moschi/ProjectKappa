@@ -9,8 +9,8 @@ namespace ProjectKappa.LasToolsAPI
 {
     public enum Las2LasProjectionMode
     {
-        PA_N,
-        PA_S
+        PA_N = 'N',
+        PA_S = 'S'
     }
 
     public static class CLICalls
@@ -40,10 +40,20 @@ namespace ProjectKappa.LasToolsAPI
             return $"{LAStoolsRootDir}\\bin\\{fileName}";
         }
 
-        public static void CreateListOfFiles(IEnumerable<string> files, string fileName)
+        public static void CreateListOfFiles(IEnumerable<string> files, string fileName, bool encloseInQuotes = false)
         {
             string path = BuildListOfFilesFilePath(fileName);
-            File.WriteAllLines(path, files);
+            if (!encloseInQuotes)
+            {
+                File.WriteAllLines(path, files);
+            }
+            else
+            {
+                foreach (var file in files)
+                {
+                    File.AppendAllText(path, $"{EscapeStringQuotes(file)}{Environment.NewLine}");
+                }
+            }
         }
 
         public static void RemoveListOfFiles(string fileName)
@@ -78,8 +88,8 @@ namespace ProjectKappa.LasToolsAPI
 
         public static void CallLas2Las(string listOfFiles, Las2LasProjectionMode projectionMode, string outputDir)
         {
-            //CallCLI($@"{GetExecutablePath("las2las")} -lof {GetListOfFilePath(listOfFiles)} -keep_classification 2 -target_sp83 {projectionMode.ToString()} -odir {EscapeStringQuotes(outputDir)} -olaz");
-            CallCLI(GetExecutablePath("las2las"), $"-lof {GetListOfFilePath(listOfFiles)} -keep_classification 2 -target_sp83 {projectionMode.ToString()} -odir {EscapeStringQuotes(outputDir)} -olaz");
+            //CallCLI($@"{GetExecutablePath("las2las")} -lof {GetListOfFilePath(listOfFiles)} -keep_classification 2 -target_sp83 {projectionMode} -odir {EscapeStringQuotes(outputDir)} -olaz");
+            CallCLI(GetExecutablePath("las2las"), $"-lof {GetListOfFilePath(listOfFiles)} -keep_classification 2 -target_sp83  {projectionMode} -odir {EscapeStringQuotes(outputDir)} -olaz");
         }
 
         public static void CallLasTile(string listOfFiles, string outputDir)

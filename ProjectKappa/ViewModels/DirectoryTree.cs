@@ -194,7 +194,7 @@ namespace ProjectKappa.ViewModels
                 new CliTask("QGIS", () =>
                 {
                     string fileListName = $"file_list_TIF_qgis.{GamelandID}.txt";
-                    CLICalls.CreateListOfFiles(TIFFiles, fileListName);
+                    CLICalls.CreateListOfFiles(TIFFiles, fileListName, true);
                     CLICalls.CallQGISMerger(fileListName, $"{RootDir}\\{GamelandFolder.QGISSuffix}\\{GamelandID}_DEM.tif");
 
                     // todo: make sure list of files isn't deleted prematurely
