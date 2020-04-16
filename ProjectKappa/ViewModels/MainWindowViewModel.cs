@@ -86,7 +86,7 @@ namespace ProjectKappa.ViewModels
         }
 
         private int StepCounter = 1;
-        private int TotalSteps = 5;
+        private int TotalSteps = 6;
         private async void ExecuteNextStep()
         {
             try
