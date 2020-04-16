@@ -9,10 +9,24 @@ namespace ProjectKappa.ViewModels
 {
     public abstract class DirectoryTree : BasePropertyChanged
     {
-        protected DirectoryTree(string rootDir)
+        protected DirectoryTree(string rootDir, string suffix, string targetSuffix)
         {
             RootDir = rootDir;
             GamelandID = new DirectoryInfo(RootDir).Name;
+            Suffix = suffix;
+            TargetSuffix = targetSuffix;
+        }
+
+        public string Suffix
+        {
+            get => GetValue<string>();
+            private set => SetValue(value);
+        }
+
+        public string TargetSuffix
+        {
+            get => GetValue<string>();
+            private set => SetValue(value);
         }
 
         public string RootDir
@@ -32,8 +46,14 @@ namespace ProjectKappa.ViewModels
         public virtual void ScanFiles()
         {
             ContainedFiles = new ObservableCollection<string>();
+            ScanFiles(GetDirPath());
+        }
+
+
+        protected void ScanFiles(string path)
+        {
             Log.StaticLog.AddEntry(LogEntry.TraceEntry("DirectoryTree", "Scanning files"));
-            foreach (var filepath in Directory.EnumerateFiles(GetDirPath()))
+            foreach (var filepath in Directory.EnumerateFiles(path))
             {
                 ContainedFiles.Add(filepath);
             }
@@ -53,8 +73,8 @@ namespace ProjectKappa.ViewModels
 
     public class Las2LasDirTree : DirectoryTree
     {
-        public Las2LasDirTree(string rootDir)
-            : base(rootDir)
+        public Las2LasDirTree(string rootDir, string suffix, string targetSuffix)
+            : base(rootDir, suffix, targetSuffix)
         {
 
         }
@@ -67,7 +87,7 @@ namespace ProjectKappa.ViewModels
 
         public override string GetDirPath()
         {
-            return $"{RootDir}\\{GamelandFolder.Las2LasSuffix}";
+            return $"{RootDir}\\{Suffix}";
         }
 
         public override IEnumerable<CliTask> GetTasks()
@@ -76,11 +96,9 @@ namespace ProjectKappa.ViewModels
             {
                 new CliTask("Convert LAZ files to tiles", () =>
                 {
-                    string fileListName = $"file_list_LAZ_lastile.{GamelandID}.txt";
+                    string fileListName = $"file_list_LAZ_lastile{Suffix}.{GamelandID}.txt";
                     CLICalls.CreateListOfFiles(LAZFiles, fileListName);
-                    CLICalls.CallLasTile(fileListName, $"{RootDir}\\{GamelandFolder.LasTileSuffix}");
-
-                    // todo: make sure list of files isn't deleted prematurely
+                    CLICalls.CallLasTile(fileListName, $"{RootDir}\\{TargetSuffix}");
                     CLICalls.RemoveListOfFiles(fileListName);
                 })
             };
@@ -88,7 +106,7 @@ namespace ProjectKappa.ViewModels
 
         public override void PrepareForExecution()
         {
-            Directory.CreateDirectory($"{RootDir}\\{GamelandFolder.LasTileSuffix}");
+            Directory.CreateDirectory($"{RootDir}\\{TargetSuffix}");
         }
 
         public override void ScanFiles()
@@ -111,8 +129,8 @@ namespace ProjectKappa.ViewModels
 
     public class LasTileDirTree : DirectoryTree
     {
-        public LasTileDirTree(string rootDir)
-            : base(rootDir)
+        public LasTileDirTree(string rootDir, string suffix, string targetSuffix)
+            : base(rootDir, suffix, targetSuffix)
         {
 
         }
@@ -125,7 +143,7 @@ namespace ProjectKappa.ViewModels
 
         public override string GetDirPath()
         {
-            return $"{RootDir}\\{GamelandFolder.LasTileSuffix}";
+            return $"{RootDir}\\{Suffix}";
         }
 
         public override IEnumerable<CliTask> GetTasks()
@@ -134,11 +152,9 @@ namespace ProjectKappa.ViewModels
             {
                 new CliTask("Blast LAZ tiles to DEM", () =>
                 {
-                    string fileListName = $"file_list_LAZ_blast2dem.{GamelandID}.txt";
+                    string fileListName = $"file_list_LAZ_blast2dem{Suffix}.{GamelandID}.txt";
                     CLICalls.CreateListOfFiles(LAZFiles, fileListName);
-                    CLICalls.CallBlast2Dem(fileListName, $"{RootDir}\\{GamelandFolder.Blast2DemSuffix}");
-
-                    // todo: make sure list of files isn't deleted prematurely
+                    CLICalls.CallBlast2Dem(fileListName, $"{RootDir}\\{TargetSuffix}");
                     CLICalls.RemoveListOfFiles(fileListName);
                 })
             };
@@ -146,7 +162,7 @@ namespace ProjectKappa.ViewModels
 
         public override void PrepareForExecution()
         {
-            Directory.CreateDirectory($"{RootDir}\\{GamelandFolder.Blast2DemSuffix}");
+            Directory.CreateDirectory($"{RootDir}\\{TargetSuffix}");
         }
 
         public override void ScanFiles()
@@ -170,15 +186,15 @@ namespace ProjectKappa.ViewModels
     // for possible future use to convert with QGIS
     public class Blast2demDirTree : DirectoryTree
     {
-        public Blast2demDirTree(string rootDir)
-            : base(rootDir)
+        public Blast2demDirTree(string rootDir, string suffix, string targetSuffix)
+            : base(rootDir, suffix, targetSuffix)
         {
 
         }
 
         public override string GetDirPath()
         {
-            return $"{RootDir}\\{GamelandFolder.Blast2DemSuffix}";
+            return $"{RootDir}\\{Suffix}";
         }
 
         public ObservableCollection<string> TIFFiles
@@ -193,11 +209,9 @@ namespace ProjectKappa.ViewModels
             {
                 new CliTask("QGIS", () =>
                 {
-                    string fileListName = $"file_list_TIF_qgis.{GamelandID}.txt";
+                    string fileListName = $"file_list_TIF_qgis{Suffix}.{GamelandID}.txt";
                     CLICalls.CreateListOfFiles(TIFFiles, fileListName, true);
-                    CLICalls.CallQGISMerger(fileListName, $"{RootDir}\\{GamelandFolder.QGISSuffix}\\{GamelandID}_DEM.tif");
-
-                    // todo: make sure list of files isn't deleted prematurely
+                    CLICalls.CallQGISMerger(fileListName, $"{RootDir}\\{TargetSuffix}\\{GamelandID}_DEM.tif");
                     CLICalls.RemoveListOfFiles(fileListName);
                 })
             };
@@ -205,7 +219,7 @@ namespace ProjectKappa.ViewModels
 
         public override void PrepareForExecution()
         {
-            Directory.CreateDirectory($"{RootDir}\\{GamelandFolder.QGISSuffix}");
+            Directory.CreateDirectory($"{RootDir}\\{TargetSuffix}");
         }
 
         public override void ScanFiles()
@@ -224,8 +238,8 @@ namespace ProjectKappa.ViewModels
 
     public class GamelandDirTree : DirectoryTree
     {
-        public GamelandDirTree(string rootDir)
-            : base(rootDir)
+        public GamelandDirTree(string rootDir, string suffix, string targetSuffix)
+            : base(rootDir, suffix, targetSuffix)
         {
 
         }
@@ -249,7 +263,8 @@ namespace ProjectKappa.ViewModels
 
         public override void PrepareForExecution()
         {
-            Directory.CreateDirectory($"{RootDir}\\{GamelandFolder.Las2LasSuffix}");
+            Directory.CreateDirectory($"{RootDir}\\{GamelandFolder.Las2LasPANSuffix}");
+            Directory.CreateDirectory($"{RootDir}\\{GamelandFolder.Las2LasPASSuffix}");
         }
 
         public override void ScanFiles()
@@ -286,9 +301,7 @@ namespace ProjectKappa.ViewModels
                     {
                         string fileListName = $"file_list_PAN_las2las.{GamelandID}.txt";
                         CLICalls.CreateListOfFiles(PANFiles, fileListName);
-                        CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_N, $"{RootDir}\\{GamelandFolder.Las2LasSuffix}");
-
-                        // todo: make sure list of files isn't deleted prematurely
+                        CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_N, $"{RootDir}\\{GamelandFolder.Las2LasPANSuffix}");
                         CLICalls.RemoveListOfFiles(fileListName);
                     }
                 }),
@@ -298,9 +311,7 @@ namespace ProjectKappa.ViewModels
                     {
                         string fileListName = $"file_list_PAS_las2las.{GamelandID}.txt";
                         CLICalls.CreateListOfFiles(PASFiles, fileListName);
-                        CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_S, $"{RootDir}\\{GamelandFolder.Las2LasSuffix}");
-
-                        // todo: make sure list of files isn't deleted prematurely
+                        CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_S, $"{RootDir}\\{GamelandFolder.Las2LasPASSuffix}");
                         CLICalls.RemoveListOfFiles(fileListName);
                     }
                 })
@@ -311,17 +322,45 @@ namespace ProjectKappa.ViewModels
     public class GamelandFolder : BasePropertyChanged
     {
         public static string Las2LasSuffix = "las2las";
+        public static string Las2LasPANSuffix = $"{Las2LasSuffix}PAN";
+        public static string Las2LasPASSuffix = $"{Las2LasSuffix}PAS";
+
         public static string LasTileSuffix = "lastile";
+        public static string LasTilePANSuffix = $"{LasTileSuffix}PAN";
+        public static string LasTilePASSuffix = $"{LasTileSuffix}PAS";
+
         public static string Blast2DemSuffix = "blast2dem";
+        public static string Blast2DemPANSuffix = $"{Blast2DemSuffix}PAN";
+        public static string Blast2DemPASSuffix = $"{Blast2DemSuffix}PAS";
+
+
         public static string QGISSuffix = "QGISDEM";
+        public static string QGISPANSuffix = $"{QGISSuffix}PAN";
+        public static string QGISPASSuffix = $"{QGISSuffix}PAS";
 
         public GamelandFolder(string rootPath)
         {
             RootPath = rootPath;
-            GamelandTree = new GamelandDirTree(RootPath);
-            Las2LasTree = new Las2LasDirTree(RootPath);
-            LasTileTree = new LasTileDirTree(RootPath);
-            Blast2DemTree = new Blast2demDirTree(RootPath);
+            GamelandTree = new GamelandDirTree(RootPath, string.Empty, string.Empty);
+
+            Las2LasTrees = new List<Las2LasDirTree>()
+            {
+                new Las2LasDirTree(RootPath, Las2LasPANSuffix, LasTilePANSuffix),
+                new Las2LasDirTree(RootPath, Las2LasPASSuffix, LasTilePASSuffix)
+            };
+
+            LasTileTrees = new List<LasTileDirTree>()
+            {
+                new LasTileDirTree(RootPath, LasTilePANSuffix, Blast2DemPANSuffix),
+                new LasTileDirTree(RootPath, LasTilePASSuffix, Blast2DemPASSuffix)
+            };
+
+            Blast2DemTrees = new List<Blast2demDirTree>()
+            {
+                new Blast2demDirTree(RootPath, Blast2DemPANSuffix, QGISPANSuffix),
+                new Blast2demDirTree(RootPath, Blast2DemPASSuffix, QGISPASSuffix)
+            };
+
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => Initialize());
             NextStep = GamelandProcessingStep.INITIAL;
         }
@@ -338,21 +377,21 @@ namespace ProjectKappa.ViewModels
             set => SetValue(value);
         }
 
-        public Las2LasDirTree Las2LasTree
+        public List<Las2LasDirTree> Las2LasTrees
         {
-            get => GetValue<Las2LasDirTree>();
+            get => GetValue<List<Las2LasDirTree>>();
             private set => SetValue(value);
         }
 
-        public LasTileDirTree LasTileTree
+        public List<LasTileDirTree> LasTileTrees
         {
-            get => GetValue<LasTileDirTree>();
+            get => GetValue<List<LasTileDirTree>>();
             private set => SetValue(value);
         }
 
-        public Blast2demDirTree Blast2DemTree
+        public List<Blast2demDirTree> Blast2DemTrees
         {
-            get => GetValue<Blast2demDirTree>();
+            get => GetValue<List<Blast2demDirTree>>();
             private set => SetValue(value);
         }
 
@@ -389,11 +428,14 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteLasTile()
         {
-            Las2LasTree.ScanFiles();
-            Las2LasTree.PrepareForExecution();
-            foreach (var task in Las2LasTree.GetTasks())
+            foreach (var las2lasTree in Las2LasTrees)
             {
-                task.Execute();
+                las2lasTree.ScanFiles();
+                las2lasTree.PrepareForExecution();
+                foreach (var task in las2lasTree.GetTasks())
+                {
+                    task.Execute();
+                }
             }
             NextStep = GamelandProcessingStep.BLAST2DEM;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteBlast2Dem());
@@ -401,11 +443,14 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteBlast2Dem()
         {
-            LasTileTree.ScanFiles();
-            LasTileTree.PrepareForExecution();
-            foreach (var task in LasTileTree.GetTasks())
+            foreach (var lasTileTree in LasTileTrees)
             {
-                task.Execute();
+                lasTileTree.ScanFiles();
+                lasTileTree.PrepareForExecution();
+                foreach (var task in lasTileTree.GetTasks())
+                {
+                    task.Execute();
+                }
             }
             NextStep = GamelandProcessingStep.QGIS;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteQGIS());
@@ -413,11 +458,14 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteQGIS()
         {
-            Blast2DemTree.ScanFiles();
-            Blast2DemTree.PrepareForExecution();
-            foreach (var task in Blast2DemTree.GetTasks())
+            foreach (var blast2DemTree in Blast2DemTrees)
             {
-                task.Execute();
+                blast2DemTree.ScanFiles();
+                blast2DemTree.PrepareForExecution();
+                foreach (var task in blast2DemTree.GetTasks())
+                {
+                    task.Execute();
+                }
             }
             NextStep = GamelandProcessingStep.FINISHED;
             ExecuteNextStepCommand = new BaseCommand((p) => false, (p) => { });
