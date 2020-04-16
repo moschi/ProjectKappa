@@ -15,6 +15,27 @@
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="ConsoleTextBox" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer RenderTransformOrigin="0.5,0.5" VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer.RenderTransform>
+                                <ScaleTransform ScaleY="-1"/>
+                            </ScrollViewer.RenderTransform>
+                            <TextBox Text="{TemplateBinding Text}" FontFamily="Consolas" RenderTransformOrigin="0.5,0.5">
+                                <TextBox.RenderTransform>
+                                    <ScaleTransform ScaleY="-1"/>
+                                </TextBox.RenderTransform>
+                            </TextBox>
+                        </ScrollViewer>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="Process files">
@@ -36,12 +57,10 @@
                     <Grid Grid.Column="1" Margin="5">
                         <StackPanel>
                             <Button Content="Load Gameland folders" Command="{Binding InitGamelandFoldersCommand}" />
-                            <Button Content="Execute next step" Command="{Binding ExecuteNextStepCommand}" />
+                            <Button Content="Process files" Command="{Binding ExecuteNextStepCommand}" />
                         </StackPanel>
                     </Grid>
-                    <TextBox Grid.Row="1" x:Name="ConsoleOutput" Margin="5" Text="{Binding CurrentConsoleOut}" FontFamily="Consolas" Grid.ColumnSpan="2" >
-                        
-                    </TextBox>
+                    <TextBox Grid.Row="1" x:Name="ConsoleOutput" Margin="5" Text="{Binding CurrentConsoleOut}" FontFamily="Consolas" Grid.ColumnSpan="2" Style="{StaticResource ConsoleTextBox}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Settings" DataContext="{Binding Settings}">
