@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using static ProjectKappa.ViewModels.MainWindowViewModel;
 
 namespace ProjectKappa.LasToolsAPI
@@ -40,8 +41,13 @@ namespace ProjectKappa.LasToolsAPI
             return $"{LAStoolsRootDir}\\bin\\{fileName}";
         }
 
-        public static void CreateListOfFiles(IEnumerable<string> files, string fileName, bool encloseInQuotes = false)
+        public static bool CreateListOfFiles(IEnumerable<string> files, string fileName, bool encloseInQuotes = false)
         {
+            if(files.Count() < 1)
+            {
+                return false;
+            }
+
             string path = BuildListOfFilesFilePath(fileName);
             if (!encloseInQuotes)
             {
@@ -54,6 +60,7 @@ namespace ProjectKappa.LasToolsAPI
                     File.AppendAllText(path, $"{EscapeStringQuotes(file)}{Environment.NewLine}");
                 }
             }
+            return true;
         }
 
         public static void RemoveListOfFiles(string fileName)
@@ -109,7 +116,23 @@ namespace ProjectKappa.LasToolsAPI
 
         public static void CallQGISMerger(string listOfFiles, string outputPath)
         {
-            CallCLI(GetOSGeo4WShell(), $@"cd {EscapeStringQuotes(QGISRootDir)}&py3_env&qt5_env&python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {GetListOfFilePath(listOfFiles)}");
+            //CallCLI(GetOSGeo4WShell(), $@"cd {EscapeStringQuotes(QGISRootDir)}&py3_env&qt5_env&python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {GetListOfFilePath(listOfFiles)}");
+            CallQGISCommand($"python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {GetListOfFilePath(listOfFiles)}");
+        }
+
+        public static void CallQGISSlopeAnalysis(string inputPath, string outputPath)
+        {
+            CallQGISCommand($"gdaldem slope {inputPath} {outputPath} -of GTiff -b 1 -s 1.0");
+        }
+
+        public static void CallQGISHillshadeAnalysis(string inputPath, string outputPath)
+        {
+            CallQGISCommand($"gdaldem hillshade {inputPath} {outputPath} -of GTiff -b 1 -z 1.0 -s 1.0 -az 315.0 -alt 45.0");
+        }
+
+        private static void CallQGISCommand(string command)
+        {
+            CallCLI(GetOSGeo4WShell(), $@"cd {EscapeStringQuotes(QGISRootDir)}&py3_env&qt5_env&{command}");
         }
 
         private static void CallCLI(string command)

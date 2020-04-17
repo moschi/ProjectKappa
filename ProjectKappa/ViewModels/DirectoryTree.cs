@@ -105,9 +105,11 @@ namespace ProjectKappa.ViewModels
                 new CliTask("Convert LAZ files to tiles", () =>
                 {
                     string fileListName = $"file_list_LAZ_lastile{Suffix}.{GamelandID}.txt";
-                    CLICalls.CreateListOfFiles(LAZFiles, fileListName);
-                    CLICalls.CallLasTile(fileListName, $"{RootDir}\\{TargetSuffix}");
-                    CLICalls.RemoveListOfFiles(fileListName);
+                    if(CLICalls.CreateListOfFiles(LAZFiles, fileListName))
+                    {
+                        CLICalls.CallLasTile(fileListName, $"{RootDir}\\{TargetSuffix}");
+                        CLICalls.RemoveListOfFiles(fileListName);
+                    }
                 })
             };
         }
@@ -166,9 +168,11 @@ namespace ProjectKappa.ViewModels
                 new CliTask("Blast LAZ tiles to DEM", () =>
                 {
                     string fileListName = $"file_list_LAZ_blast2dem{Suffix}.{GamelandID}.txt";
-                    CLICalls.CreateListOfFiles(LAZFiles, fileListName);
-                    CLICalls.CallBlast2Dem(fileListName, $"{RootDir}\\{TargetSuffix}");
-                    CLICalls.RemoveListOfFiles(fileListName);
+                    if(CLICalls.CreateListOfFiles(LAZFiles, fileListName))
+                    {
+                        CLICalls.CallBlast2Dem(fileListName, $"{RootDir}\\{TargetSuffix}");
+                        CLICalls.RemoveListOfFiles(fileListName);
+                    }
                 })
             };
         }
@@ -222,9 +226,18 @@ namespace ProjectKappa.ViewModels
                 new CliTask("QGIS", () =>
                 {
                     string fileListName = $"file_list_TIF_qgis{Suffix}.{GamelandID}.txt";
-                    CLICalls.CreateListOfFiles(TIFFiles, fileListName, true);
-                    CLICalls.CallQGISMerger(fileListName, $"{RootDir}\\{GamelandFolder.QGISSuffix}\\{GamelandID}{Suffix}_DEM.tif");
-                    CLICalls.RemoveListOfFiles(fileListName);
+                    string workDirPath = $"{RootDir}\\{GamelandFolder.QGISSuffix}";
+                    string fileNameDem = $"{GamelandID}{Suffix}_DEM.tif";
+                    string fileNameSlope = $"{GamelandID}{Suffix}_Slope_DEM.tif";
+                    string fileNameHillshade = $"{GamelandID}{Suffix}_Hillshade_DEM.tif";
+
+                    if(CLICalls.CreateListOfFiles(TIFFiles, fileListName, true))
+                    {
+                        CLICalls.CallQGISMerger(fileListName, $"{workDirPath}\\{fileNameDem}");
+                        CLICalls.CallQGISSlopeAnalysis($"{workDirPath}\\{fileNameDem}", $"{workDirPath}\\{fileNameSlope}");
+                        CLICalls.CallQGISHillshadeAnalysis($"{workDirPath}\\{fileNameDem}", $"{workDirPath}\\{fileNameHillshade}");
+                        CLICalls.RemoveListOfFiles(fileListName);
+                    }
                 })
             };
         }
@@ -317,9 +330,11 @@ namespace ProjectKappa.ViewModels
                     if(PANFiles.Count > 0)
                     {
                         string fileListName = $"file_list_PAN_las2las.{GamelandID}.txt";
-                        CLICalls.CreateListOfFiles(PANFiles, fileListName);
-                        CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_N, $"{RootDir}\\{GamelandFolder.Las2LasPANSuffix}");
-                        CLICalls.RemoveListOfFiles(fileListName);
+                        if(CLICalls.CreateListOfFiles(PANFiles, fileListName))
+                        {
+                            CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_N, $"{RootDir}\\{GamelandFolder.Las2LasPANSuffix}");
+                            CLICalls.RemoveListOfFiles(fileListName);
+                        }
                     }
                 }),
                 new CliTask("Convert PAS files", () =>
@@ -327,9 +342,11 @@ namespace ProjectKappa.ViewModels
                     if(PASFiles.Count > 0)
                     {
                         string fileListName = $"file_list_PAS_las2las.{GamelandID}.txt";
-                        CLICalls.CreateListOfFiles(PASFiles, fileListName);
-                        CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_S, $"{RootDir}\\{GamelandFolder.Las2LasPASSuffix}");
-                        CLICalls.RemoveListOfFiles(fileListName);
+                        if(CLICalls.CreateListOfFiles(PASFiles, fileListName))
+                        {
+                            CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_S, $"{RootDir}\\{GamelandFolder.Las2LasPASSuffix}");
+                            CLICalls.RemoveListOfFiles(fileListName);
+                        }
                     }
                 })
             };
