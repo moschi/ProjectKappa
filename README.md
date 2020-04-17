@@ -56,3 +56,7 @@ A tool to automate processing *.las* files
 ## 217
 
 ![image-20200417100535260](README.assets/image-20200417100535260.png)
+
+## 217 with OSM
+
+![image-20200417103938208](README.assets/image-20200417103938208.png)
