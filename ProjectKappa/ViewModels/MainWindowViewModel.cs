@@ -86,7 +86,7 @@ namespace ProjectKappa.ViewModels
         }
 
         private int StepCounter = 1;
-        private int TotalSteps = 6;
+        private int TotalSteps = 5;
         private async void ExecuteNextStep()
         {
             try
@@ -99,12 +99,6 @@ namespace ProjectKappa.ViewModels
                 await Task.Run(() =>
                 {
                     CurrentlyWorking = true;
-                    //for(int i = 0; i < GamelandFolders.Count; i++)
-                    //{
-                    //    controller.SetMessage($"Work is being done in the background...{Environment.NewLine}Item {i} of {GamelandFolders.Count}");
-                    //    controller.SetProgress((double)i / GamelandFolders.Count);
-                    //    GamelandFolders[i].ExecuteNextStepCommand.Execute(null);
-                    //}
                     int finishedCount = 0;
                     object syncLock = new object();
                     Parallel.For(0, GamelandFolders.Count, (i) =>

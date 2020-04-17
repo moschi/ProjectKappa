@@ -88,19 +88,16 @@ namespace ProjectKappa.LasToolsAPI
 
         public static void CallLas2Las(string listOfFiles, Las2LasProjectionMode projectionMode, string outputDir)
         {
-            //CallCLI($@"{GetExecutablePath("las2las")} -lof {GetListOfFilePath(listOfFiles)} -keep_classification 2 -target_sp83 {projectionMode} -odir {EscapeStringQuotes(outputDir)} -olaz");
             CallCLI(GetExecutablePath("las2las"), $"-lof {GetListOfFilePath(listOfFiles)} -keep_classification 2 -target_sp83  {projectionMode} -odir {EscapeStringQuotes(outputDir)} -olaz");
         }
 
         public static void CallLasTile(string listOfFiles, string outputDir)
         {
-            //CallCLI($@"{GetExecutablePath("lastile")} -lof {GetListOfFilePath(listOfFiles)} -o tile.laz -tile_size 1000 -buffer 25 -odir {EscapeStringQuotes(outputDir)} -olaz");
             CallCLI(GetExecutablePath("lastile"), $"-lof {GetListOfFilePath(listOfFiles)} -o tile.laz -tile_size 1000 -buffer 25 -odir {EscapeStringQuotes(outputDir)} -olaz");
         }
 
         public static void CallBlast2Dem(string listOfFiles, string outputDir)
         {
-            //CallCLI($@"{GetExecutablePath("blast2dem")} -lof {GetListOfFilePath(listOfFiles)} -elevation -odir {EscapeStringQuotes(outputDir)} -otif");
             CallCLI(GetExecutablePath("blast2dem"), $"-lof {GetListOfFilePath(listOfFiles)} -elevation -odir {EscapeStringQuotes(outputDir)} -otif");
         }
 
@@ -108,15 +105,11 @@ namespace ProjectKappa.LasToolsAPI
         {
             CallCLI($@"{GetOSGeo4WShell()} py3_env");
             CallCLI($@"{GetOSGeo4WShell()} qt5_env");
-
-            //CallCLI(GetOSGeo4WShell(), "py3_env");
-            //CallCLI(GetOSGeo4WShell(), "qt5_env");
         }
 
         public static void CallQGISMerger(string listOfFiles, string outputPath)
         {
             CallCLI(GetOSGeo4WShell(), $@"cd {EscapeStringQuotes(QGISRootDir)}&py3_env&qt5_env&python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {GetListOfFilePath(listOfFiles)}");
-            //CallCLI(GetOSGeo4WShell(), $"py3_env&qt5_env&python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {EscapeStringQuotes(listOfFiles)}");
         }
 
         private static void CallCLI(string command)
@@ -145,7 +138,6 @@ namespace ProjectKappa.LasToolsAPI
             standardError.DataReceived += (sender, data) =>
             {
                 Log.StaticLog.AddEntry(LogEntry.ErrorEntry("CallCLI", $"Command [{command}] resulted in ERROR"));
-                //UpdateConsoleOut($"ERROR: {data}");
                 UpdateConsoleOut(data);
             };
 
@@ -187,7 +179,6 @@ namespace ProjectKappa.LasToolsAPI
             standardError.DataReceived += (sender, data) =>
             {
                 Log.StaticLog.AddEntry(LogEntry.ErrorEntry("CallCLI", $"Command [{name} {args}] resulted in ERROR"));
-                //UpdateConsoleOut($"ERROR: {data}");
                 UpdateConsoleOut(data);
             };
 

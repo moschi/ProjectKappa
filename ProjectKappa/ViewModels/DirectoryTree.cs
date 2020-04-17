@@ -4,6 +4,7 @@ using ProjectKappa.LasToolsAPI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ProjectKappa.ViewModels
 {
@@ -252,38 +253,6 @@ namespace ProjectKappa.ViewModels
         }
     }
 
-    public class FinalQGISDirTree : DirectoryTree
-    {
-        public FinalQGISDirTree(string rootDir, string suffix, string targetSuffix)
-            : base(rootDir, suffix, targetSuffix)
-        {
-
-        }
-
-        public override void CleanUp()
-        {
-            //Directory.Delete(GetDirPath());
-        }
-
-        public override string GetDirPath()
-        {
-            return $"{RootDir}\\{Suffix}";
-        }
-
-        public override IEnumerable<CliTask> GetTasks()
-        {
-            return new List<CliTask>()
-            {
-                new CliTask("QGISFinal", () =>
-                {
-                    // todo: call QGISFinalMerge
-                })
-            };
-        }
-
-        public override void PrepareForExecution() { }
-    }
-
     public class GamelandDirTree : DirectoryTree
     {
         public GamelandDirTree(string rootDir, string suffix, string targetSuffix)
@@ -386,12 +355,7 @@ namespace ProjectKappa.ViewModels
         public static string Blast2DemPANSuffix = $"{Blast2DemSuffix}PAN";
         public static string Blast2DemPASSuffix = $"{Blast2DemSuffix}PAS";
 
-
         public static string QGISSuffix = "QGISDEM";
-        //public static string QGISPANSuffix = $"{QGISSuffix}PAN";
-        //public static string QGISPASSuffix = $"{QGISSuffix}PAS";
-
-        public static string QGISFinalSuffix = "QGISFinal";
 
         public GamelandFolder(string rootPath)
         {
@@ -415,8 +379,6 @@ namespace ProjectKappa.ViewModels
                 new Blast2demDirTree(RootPath, Blast2DemPANSuffix, QGISSuffix),
                 new Blast2demDirTree(RootPath, Blast2DemPASSuffix, QGISSuffix)
             };
-
-            FinalQGISTree = new FinalQGISDirTree(RootPath, QGISSuffix, QGISFinalSuffix);
 
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => Initialize());
             NextStep = GamelandProcessingStep.INITIAL;
@@ -452,12 +414,6 @@ namespace ProjectKappa.ViewModels
             private set => SetValue(value);
         }
 
-        public FinalQGISDirTree FinalQGISTree
-        {
-            get => GetValue<FinalQGISDirTree>();
-            private set => SetValue(value);
-        }
-
         public GamelandProcessingStep NextStep
         {
             get => GetStructOrDefaultValue<GamelandProcessingStep>();
@@ -481,10 +437,10 @@ namespace ProjectKappa.ViewModels
         {
             GamelandTree.ScanFiles();
             GamelandTree.PrepareForExecution();
-            foreach (var task in GamelandTree.GetTasks())
+            Parallel.ForEach(GamelandTree.GetTasks(), (task) =>
             {
                 task.Execute();
-            }
+            });
             GamelandTree.CleanUp();
             NextStep = GamelandProcessingStep.LASTILE;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteLasTile());
@@ -492,61 +448,51 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteLasTile()
         {
-            foreach (var las2lasTree in Las2LasTrees)
+            Parallel.ForEach(Las2LasTrees, (las2lasTree) =>
             {
                 las2lasTree.ScanFiles();
                 las2lasTree.PrepareForExecution();
-                foreach (var task in las2lasTree.GetTasks())
+                Parallel.ForEach(las2lasTree.GetTasks(), (task) =>
                 {
                     task.Execute();
-                }
+                });
                 las2lasTree.CleanUp();
-            }
+            });
+
             NextStep = GamelandProcessingStep.BLAST2DEM;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteBlast2Dem());
         }
 
         private void ExecuteBlast2Dem()
         {
-            foreach (var lasTileTree in LasTileTrees)
+            Parallel.ForEach(LasTileTrees, (lasTileTree) =>
             {
                 lasTileTree.ScanFiles();
                 lasTileTree.PrepareForExecution();
-                foreach (var task in lasTileTree.GetTasks())
+                Parallel.ForEach(lasTileTree.GetTasks(), (task) =>
                 {
                     task.Execute();
-                }
+                });
                 lasTileTree.CleanUp();
-            }
+            });
+
             NextStep = GamelandProcessingStep.QGIS;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteQGIS());
         }
 
         private void ExecuteQGIS()
         {
-            foreach (var blast2DemTree in Blast2DemTrees)
+            Parallel.ForEach(Blast2DemTrees, (blast2DemTree) =>
             {
                 blast2DemTree.ScanFiles();
                 blast2DemTree.PrepareForExecution();
-                foreach (var task in blast2DemTree.GetTasks())
+                Parallel.ForEach(blast2DemTree.GetTasks(), (task) =>
                 {
                     task.Execute();
-                }
+                });
                 blast2DemTree.CleanUp();
-            }
-            NextStep = GamelandProcessingStep.QGISFinal;
-            ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteQGISFinal());
-        }
+            });
 
-        private void ExecuteQGISFinal()
-        {
-            FinalQGISTree.ScanFiles();
-            FinalQGISTree.PrepareForExecution();
-            foreach (var task in FinalQGISTree.GetTasks())
-            {
-                task.Execute();
-            }
-            FinalQGISTree.CleanUp();
             NextStep = GamelandProcessingStep.FINISHED;
             ExecuteNextStepCommand = new BaseCommand((p) => false, (p) => { });
         }
@@ -564,7 +510,6 @@ namespace ProjectKappa.ViewModels
         LASTILE,
         BLAST2DEM,
         QGIS,
-        QGISFinal,
         FINISHED
     }
 }
