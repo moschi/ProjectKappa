@@ -100,17 +100,42 @@ namespace ProjectKappa.ViewModels
                 {
                     CurrentlyWorking = true;
                     int finishedCount = 0;
-                    object syncLock = new object();
-                    Parallel.For(0, GamelandFolders.Count, (i) =>
+
+                    if (Settings.RunParallel)
                     {
-                        GamelandFolders[i].ExecuteNextStepCommand.Execute(null);
-                        lock (syncLock)
+                        object syncLock = new object();
+                        ParallelOptions parallelOptions = new ParallelOptions
                         {
+                            // limits core-usage to roughly 75%
+                            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 1.0))
+                        };
+
+                        Parallel.For(0, GamelandFolders.Count, parallelOptions, (i) =>
+                        {
+                            Log.AddEntry(LogEntry.InformationEntry("ExecuteNextStep", $"Processing {GamelandFolders[0].ToString()}"));
+                            GamelandFolders[i].ExecuteNextStepCommand.Execute(null);
+                            lock (syncLock)
+                            {
+                                finishedCount++;
+                            }
+                            controller.SetMessage($"Work is being done in the background...{Environment.NewLine}Item {finishedCount} of {GamelandFolders.Count} finished");
+                            controller.SetProgress((double)finishedCount / GamelandFolders.Count);
+                            Log.AddEntry(LogEntry.InformationEntry("ExecuteNextStep", $"Finished processing {GamelandFolders[0].ToString()}"));
+                        });
+                    }
+                    else
+                    {
+                        foreach(var folder in GamelandFolders)
+                        {
+                            Log.AddEntry(LogEntry.InformationEntry("ExecuteNextStep", $"Processing {folder.ToString()}"));
+                            folder.ExecuteNextStepCommand.Execute(null);
                             finishedCount++;
+                            controller.SetMessage($"Work is being done in the background...{Environment.NewLine}Item {finishedCount} of {GamelandFolders.Count} finished");
+                            controller.SetProgress((double)finishedCount / GamelandFolders.Count);
+                            Log.AddEntry(LogEntry.InformationEntry("ExecuteNextStep", $"Finished processing {folder.ToString()}"));
                         }
-                        controller.SetMessage($"Work is being done in the background...{Environment.NewLine}Item {finishedCount} of {GamelandFolders.Count} finished");
-                        controller.SetProgress((double)finishedCount / GamelandFolders.Count);
-                    });
+                    }
+
                     CurrentlyWorking = false;
                 });
                 await controller.CloseAsync();
@@ -135,9 +160,9 @@ namespace ProjectKappa.ViewModels
 
         public void UpdateConsoleOut(string data)
         {
-            Dispatcher.CurrentDispatcher.Invoke(() => 
+            Dispatcher.CurrentDispatcher.Invoke(() =>
             {
-                if(CurrentConsoleOut.Length > 5000)
+                if (CurrentConsoleOut.Length > 5000)
                 {
                     CurrentConsoleOut = string.Empty;
                 }

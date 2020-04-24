@@ -53,6 +53,12 @@ namespace ProjectKappa.ViewModels
             set => SetValue(value);
         }
 
+        public bool RunParallel
+        {
+            get => GetStructOrDefaultValue<bool>();
+            set => SetValue(value);
+        }
+
         private void Sync(bool toSource = true)
         {
             if (toSource)
@@ -61,6 +67,7 @@ namespace ProjectKappa.ViewModels
                 Properties.Settings.Default.LASFilesRoot = LASFilesRoot;
                 Properties.Settings.Default.QGISRoot = QGISRoot;
                 Properties.Settings.Default.LogLevel = Level.Item.ToString();
+                Properties.Settings.Default.RunParallel = RunParallel;
 
                 Properties.Settings.Default.Save();
                 Log.StaticLog.AddEntry(LogEntry.InformationEntry("Settings", "Saved settings settings"));
@@ -72,6 +79,7 @@ namespace ProjectKappa.ViewModels
                 LAStoolsRoot = Properties.Settings.Default.LAStoolsRoot;
                 LASFilesRoot = Properties.Settings.Default.LASFilesRoot;
                 QGISRoot = Properties.Settings.Default.QGISRoot;
+                RunParallel = Properties.Settings.Default.RunParallel;
                 if(!Enum.TryParse<LogLevel>(Properties.Settings.Default.LogLevel, out LogLevel tempRes))
                 {
                     tempRes = LogLevel.WARNING;

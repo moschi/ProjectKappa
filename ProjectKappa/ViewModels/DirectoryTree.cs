@@ -4,7 +4,6 @@ using ProjectKappa.LasToolsAPI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace ProjectKappa.ViewModels
 {
@@ -454,10 +453,10 @@ namespace ProjectKappa.ViewModels
         {
             GamelandTree.ScanFiles();
             GamelandTree.PrepareForExecution();
-            Parallel.ForEach(GamelandTree.GetTasks(), (task) =>
+            foreach (var task in GamelandTree.GetTasks())
             {
                 task.Execute();
-            });
+            }
             GamelandTree.CleanUp();
             NextStep = GamelandProcessingStep.LASTILE;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteLasTile());
@@ -465,16 +464,16 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteLasTile()
         {
-            Parallel.ForEach(Las2LasTrees, (las2lasTree) =>
+            foreach (var las2lasTree in Las2LasTrees)
             {
                 las2lasTree.ScanFiles();
                 las2lasTree.PrepareForExecution();
-                Parallel.ForEach(las2lasTree.GetTasks(), (task) =>
+                foreach (var task in las2lasTree.GetTasks())
                 {
                     task.Execute();
-                });
+                }
                 las2lasTree.CleanUp();
-            });
+            }
 
             NextStep = GamelandProcessingStep.BLAST2DEM;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteBlast2Dem());
@@ -482,16 +481,16 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteBlast2Dem()
         {
-            Parallel.ForEach(LasTileTrees, (lasTileTree) =>
+            foreach (var lasTileTree in LasTileTrees)
             {
                 lasTileTree.ScanFiles();
                 lasTileTree.PrepareForExecution();
-                Parallel.ForEach(lasTileTree.GetTasks(), (task) =>
+                foreach (var task in lasTileTree.GetTasks())
                 {
                     task.Execute();
-                });
+                }
                 lasTileTree.CleanUp();
-            });
+            }
 
             NextStep = GamelandProcessingStep.QGIS;
             ExecuteNextStepCommand = new BaseCommand((p) => true, (p) => ExecuteQGIS());
@@ -499,16 +498,16 @@ namespace ProjectKappa.ViewModels
 
         private void ExecuteQGIS()
         {
-            Parallel.ForEach(Blast2DemTrees, (blast2DemTree) =>
+            foreach (var blast2DemTree in Blast2DemTrees)
             {
                 blast2DemTree.ScanFiles();
                 blast2DemTree.PrepareForExecution();
-                Parallel.ForEach(blast2DemTree.GetTasks(), (task) =>
+                foreach (var task in blast2DemTree.GetTasks())
                 {
                     task.Execute();
-                });
+                }
                 blast2DemTree.CleanUp();
-            });
+            }
 
             NextStep = GamelandProcessingStep.FINISHED;
             ExecuteNextStepCommand = new BaseCommand((p) => false, (p) => { });

@@ -14,5 +14,8 @@
     <Setting Name="QGISRoot" Type="System.String" Scope="User">
       <Value Profile="(Default)">unset</Value>
     </Setting>
+    <Setting Name="RunParallel" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

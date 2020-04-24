@@ -70,5 +70,17 @@ namespace ProjectKappa.Properties {
                 this["QGISRoot"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool RunParallel {
+            get {
+                return ((bool)(this["RunParallel"]));
+            }
+            set {
+                this["RunParallel"] = value;
+            }
+        }
     }
 }
