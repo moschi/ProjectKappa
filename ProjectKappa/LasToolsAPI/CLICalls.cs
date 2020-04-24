@@ -116,7 +116,6 @@ namespace ProjectKappa.LasToolsAPI
 
         public static void CallQGISMerger(string listOfFiles, string outputPath)
         {
-            //CallCLI(GetOSGeo4WShell(), $@"cd {EscapeStringQuotes(QGISRootDir)}&py3_env&qt5_env&python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {GetListOfFilePath(listOfFiles)}");
             CallQGISCommand($"python3 -m gdal_merge -ot Float32 -of GTiff -o {EscapeStringQuotes(outputPath)} --optfile {GetListOfFilePath(listOfFiles)}");
         }
 
