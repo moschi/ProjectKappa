@@ -90,6 +90,7 @@ namespace ProjectKappa.ViewModels
         public override void CleanUp()
         {
             Directory.Delete(GetDirPath(), true);
+            Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, Las2Las", $"Cleaned up directory"));
         }
 
         public override string GetDirPath()
@@ -107,6 +108,8 @@ namespace ProjectKappa.ViewModels
                     if(CLICalls.CreateListOfFiles(LAZFiles, fileListName))
                     {
                         CLICalls.CallLasTile(fileListName, $"{RootDir}\\{TargetSuffix}");
+                        Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, LAZ to tiles", $"Converted *{Suffix} LAZ files to tiles"));
+
                         CLICalls.RemoveListOfFiles(fileListName);
                     }
                 })
@@ -153,6 +156,7 @@ namespace ProjectKappa.ViewModels
         public override void CleanUp()
         {
             Directory.Delete(GetDirPath(), true);
+            Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, LasTile", $"Cleaned up directory"));
         }
 
         public override string GetDirPath()
@@ -170,6 +174,9 @@ namespace ProjectKappa.ViewModels
                     if(CLICalls.CreateListOfFiles(LAZFiles, fileListName))
                     {
                         CLICalls.CallBlast2Dem(fileListName, $"{RootDir}\\{TargetSuffix}");
+                        Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, Blast2Dem", $"Blasted *{Suffix} files to .tif, .kml [...]"));
+
+
                         CLICalls.RemoveListOfFiles(fileListName);
                     }
                 })
@@ -233,8 +240,14 @@ namespace ProjectKappa.ViewModels
                     if(CLICalls.CreateListOfFiles(TIFFiles, fileListName, true))
                     {
                         CLICalls.CallQGISMerger(fileListName, $"{workDirPath}\\{fileNameDem}");
+                        Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, QGIS processing", $"Merged *{Suffix} files into a DEM"));
+
                         CLICalls.CallQGISSlopeAnalysis($"{workDirPath}\\{fileNameDem}", $"{workDirPath}\\{fileNameSlope}");
+                        Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, QGIS processing", $"Created Slope Analysis for *{Suffix} from previously created DEM"));
+
                         CLICalls.CallQGISHillshadeAnalysis($"{workDirPath}\\{fileNameDem}", $"{workDirPath}\\{fileNameHillshade}");
+                        Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, QGIS processing", $"Created Hillshade Analysis for *{Suffix} from previously created DEM"));
+
                         CLICalls.RemoveListOfFiles(fileListName);
                     }
                 })
@@ -262,6 +275,7 @@ namespace ProjectKappa.ViewModels
         public override void CleanUp()
         {
             Directory.Delete(GetDirPath(), true);
+            Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, Blast2Dem", $"Cleaned up directory"));
         }
     }
 
@@ -332,6 +346,8 @@ namespace ProjectKappa.ViewModels
                         if(CLICalls.CreateListOfFiles(PANFiles, fileListName))
                         {
                             CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_N, $"{RootDir}\\{GamelandFolder.Las2LasPANSuffix}");
+                            Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, Las2Las", $"Converted *PAN LAS files to LAZ"));
+
                             CLICalls.RemoveListOfFiles(fileListName);
                         }
                     }
@@ -344,6 +360,8 @@ namespace ProjectKappa.ViewModels
                         if(CLICalls.CreateListOfFiles(PASFiles, fileListName))
                         {
                             CLICalls.CallLas2Las(fileListName, Las2LasProjectionMode.PA_S, $"{RootDir}\\{GamelandFolder.Las2LasPASSuffix}");
+                            Log.StaticLog.AddEntry(LogEntry.InformationEntry($"Folder {this.GamelandID}, Las2Las", $"Converted *PAS LAS files to LAZ"));
+
                             CLICalls.RemoveListOfFiles(fileListName);
                         }
                     }
